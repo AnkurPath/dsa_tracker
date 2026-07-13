@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if error %}
+  <div class="mb-6 rounded-lg border border-due/30 bg-due-soft px-4 py-3 text-sm text-due" role="alert">
+    {{ error }}
+  </div>
+{% endif %}
+
+{# —— Add problem —— #}
+<section
+  class="mb-10"
+  x-data="{ open: false }"
+>
+  <div class="flex items-end justify-between gap-4">
+    <div>
+      <h2 class="font-display text-2xl font-bold text-ink">Log a solve</h2>
+      <p class="mt-1 text-sm text-ink-muted">Paste a LeetCode URL after you finish a problem.</p>
+    </div>
+    <button
+      type="button"
+      @click="open = !open"
+      class="shrink-0 rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-paper transition hover:bg-ink-soft"
+      x-text="open ? 'Close' : 'Add problem'"
+    ></button>
+  </div>
+
+  <div
+    x-show="open"
+    x-cloak
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 -translate-y-1"
+    x-transition:enter-end="opacity-100 translate-y-0"
+    class="mt-5 rounded-xl bg-paper-elev p-5 shadow-soft sm:p-6"
+  >
+    <form
+      hx-post="/problems"
+      hx-target="#dashboard"
+      hx-swap="innerHTML"
+      @htmx:after-request="if ($event.detail.successful) { $el.reset(); open = false }"
+      class="space-y-5"
+    >
+      <div>
+        <label for="url" class="mb-1.5 block text-sm font-medium text-ink">LeetCode URL</label>
+        <input
+          type="url"
+          id="url"
+          name="url"
+          required
+          placeholder="https://leetcode.com/problems/two-sum/"
+          class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 placeholder:text-ink-muted/60 focus:ring-2"
+        />
+      </div>
+
+      <div>
+        <p class="mb-2 text-sm font-medium text-ink">How did you solve it?</p>
+        <div class="grid gap-2 sm:grid-cols-3">
+          {% for value, label in solve_methods.items() %}
+          <label class="relative cursor-pointer">
+            <input
+              type="radio"
+              name="solve_method"
+              value="{{ value.value }}"
+              class="peer sr-only"
+              {% if loop.first %}required{% endif %}
+              {% if value.value == 'own' %}checked{% endif %}
+            />
+            <span class="block rounded-lg border border-paper-wash bg-paper px-3 py-3 text-center text-sm text-ink-muted transition peer-checked:border-ink peer-checked:bg-ink peer-checked:text-paper peer-checked:font-medium">
+              {{ label }}
+            </span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="time_minutes" class="mb-1.5 block text-sm font-medium text-ink">Time taken (minutes)</label>
+          <input
+            type="number"
+            id="time_minutes"
+            name="time_minutes"
+            required
+            min="1"
+            placeholder="45"
+            class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 placeholder:text-ink-muted/60 focus:ring-2"
+          />
+        </div>
+        <div>
+          <label for="notes" class="mb-1.5 block text-sm font-medium text-ink">Notes <span class="font-normal text-ink-muted">(optional)</span></label>
+          <input
+            type="text"
+            id="notes"
+            name="notes"
+            placeholder="Two pointers, edge case on empty…"
+            class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 placeholder:text-ink-muted/60 focus:ring-2"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button
+          type="submit"
+          class="rounded-lg bg-due px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+        >
+          Save &amp; schedule next review
+        </button>
+        <span class="htmx-indicator text-sm text-ink-muted">Saving…</span>
+      </div>
+    </form>
+  </div>
+</section>
+
+{# —— Dashboard —— #}
+<div id="dashboard">
+  {% include "partials/dashboard_sections.html" %}
+</div>
+{% endblock %}

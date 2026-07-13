@@ -1,0 +1,52 @@
+{# Stats + due / upcoming / mastered lists #}
+{% include "partials/stats.html" %}
+
+<section class="mb-10">
+  <div class="mb-4 flex items-baseline justify-between gap-3">
+    <h2 class="font-display text-2xl font-bold text-ink">Due now</h2>
+    <span class="text-sm text-ink-muted">{{ due|length }} problem{{ 's' if due|length != 1 else '' }}</span>
+  </div>
+  {% if due %}
+    <ul class="space-y-3">
+      {% for problem in due %}
+        {% include "partials/problem_row.html" with context %}
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="rounded-xl border border-dashed border-ink/15 bg-paper-elev/60 px-5 py-8 text-center text-ink-muted">
+      Nothing due today. Keep solving — your next revision will show up here.
+    </p>
+  {% endif %}
+</section>
+
+<section class="mb-10">
+  <div class="mb-4 flex items-baseline justify-between gap-3">
+    <h2 class="font-display text-2xl font-bold text-ink">Upcoming</h2>
+    <span class="text-sm text-ink-muted">{{ upcoming|length }} scheduled</span>
+  </div>
+  {% if upcoming %}
+    <ul class="space-y-3">
+      {% for problem in upcoming %}
+        {% include "partials/problem_row.html" with context %}
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="rounded-xl border border-dashed border-ink/15 bg-paper-elev/60 px-5 py-8 text-center text-ink-muted">
+      No upcoming revisions yet.
+    </p>
+  {% endif %}
+</section>
+
+{% if mastered %}
+<section class="mb-4">
+  <div class="mb-4 flex items-baseline justify-between gap-3">
+    <h2 class="font-display text-2xl font-bold text-ink">Mastered</h2>
+    <span class="text-sm text-ink-muted">Parked when you feel solid</span>
+  </div>
+  <ul class="space-y-3">
+    {% for problem in mastered %}
+      {% include "partials/problem_row.html" with context %}
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}

@@ -1,0 +1,63 @@
+{% set next_rev = problem.revision_count + 1 %}
+<form
+  hx-post="/problems/{{ problem.id }}/revise"
+  hx-target="#dashboard"
+  hx-swap="innerHTML"
+  class="space-y-4"
+>
+  <p class="text-sm text-ink-muted">
+    Logging revision <span class="font-semibold text-ink">{{ next_rev }}</span>
+    · code/video keeps it frequent (2 days) · own after 2nd revision → random (4–60 days)
+  </p>
+
+  <div>
+    <p class="mb-2 text-sm font-medium text-ink">How did you solve it?</p>
+    <div class="grid gap-2 sm:grid-cols-3">
+      {% for value, label in solve_methods.items() %}
+      <label class="relative cursor-pointer">
+        <input
+          type="radio"
+          name="solve_method"
+          value="{{ value.value }}"
+          class="peer sr-only"
+          {% if loop.first %}required{% endif %}
+          {% if value.value == 'own' %}checked{% endif %}
+        />
+        <span class="block rounded-lg border border-paper-wash bg-paper px-3 py-2.5 text-center text-sm text-ink-muted transition peer-checked:border-ink peer-checked:bg-ink peer-checked:text-paper peer-checked:font-medium">
+          {{ label }}
+        </span>
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label class="mb-1.5 block text-sm font-medium text-ink">Time taken (minutes)</label>
+      <input
+        type="number"
+        name="time_minutes"
+        required
+        min="1"
+        placeholder="30"
+        class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 focus:ring-2"
+      />
+    </div>
+    <div>
+      <label class="mb-1.5 block text-sm font-medium text-ink">Notes <span class="font-normal text-ink-muted">(optional)</span></label>
+      <input
+        type="text"
+        name="notes"
+        placeholder="What stuck this time?"
+        class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 focus:ring-2"
+      />
+    </div>
+  </div>
+
+  <button
+    type="submit"
+    class="rounded-lg bg-due px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+  >
+    Save revision {{ next_rev }}
+  </button>
+</form>

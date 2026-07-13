@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Log in · DSA Tracker{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-md">
+  <h1 class="font-display text-2xl font-bold text-ink">Log in</h1>
+  <p class="mt-1 text-sm text-ink-muted">Access your personal revision queue.</p>
+
+  {% if error %}
+  <div class="mt-5 rounded-lg border border-due/30 bg-due-soft px-4 py-3 text-sm text-due" role="alert">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <form method="post" action="/login" class="mt-6 space-y-4 rounded-xl bg-paper-elev p-5 shadow-soft sm:p-6">
+    <div>
+      <label for="username" class="mb-1.5 block text-sm font-medium text-ink">Username</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        required
+        autocomplete="username"
+        value="{{ username or '' }}"
+        class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 focus:ring-2"
+      />
+    </div>
+    <div>
+      <label for="password" class="mb-1.5 block text-sm font-medium text-ink">Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+        autocomplete="current-password"
+        class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 focus:ring-2"
+      />
+    </div>
+    <button
+      type="submit"
+      class="w-full rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-paper transition hover:bg-ink-soft"
+    >Log in</button>
+  </form>
+
+  <p class="mt-5 text-center text-sm text-ink-muted">
+    No account?
+    <a href="/register" class="font-semibold text-ink underline decoration-ink/20 underline-offset-2 hover:decoration-ink">Create one</a>
+  </p>
+</section>
+{% endblock %}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}DSA Tracker{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: { DEFAULT: '#1a2332', soft: '#2d3a4f', muted: '#5c6b82' },
+            paper: { DEFAULT: '#f4f6f9', elev: '#ffffff', wash: '#e8edf4' },
+            due: { DEFAULT: '#c45c26', soft: '#f3e0d4' },
+            ok: { DEFAULT: '#1f6b4a', soft: '#d8eee4' },
+            wait: { DEFAULT: '#3d5a80', soft: '#dce6f0' },
+          },
+          fontFamily: {
+            display: ['Syne', 'system-ui', 'sans-serif'],
+            sans: ['Figtree', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            soft: '0 1px 2px rgba(26,35,50,0.04), 0 8px 24px rgba(26,35,50,0.06)',
+          },
+        },
+      },
+    }
+  </script>
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    body {
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, #dce8f5 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, #f3e0d4 0%, transparent 45%),
+        linear-gradient(180deg, #eef2f7 0%, #f4f6f9 40%, #e8edf4 100%);
+      min-height: 100vh;
+    }
+    .htmx-request .htmx-indicator { opacity: 1; }
+    .htmx-indicator { opacity: 0; transition: opacity 200ms ease; }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body class="font-sans text-ink antialiased">
+  <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+    <header class="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <a href="/" class="group inline-block">
+        <p class="font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
+          DSA Tracker
+        </p>
+        <p class="mt-2 max-w-md text-ink-muted">
+          Frequent reviews until you solve it yourself — then spaced, then random.
+        </p>
+      </a>
+      {% if user %}
+      <div class="flex items-center gap-3 self-start sm:pt-2">
+        <span class="text-sm text-ink-muted">Signed in as <span class="font-semibold text-ink">{{ user.username }}</span></span>
+        <form method="post" action="/logout">
+          <button
+            type="submit"
+            class="rounded-lg border border-paper-wash bg-paper-elev px-3 py-1.5 text-sm font-medium text-ink-muted transition hover:border-ink/20 hover:text-ink"
+          >Log out</button>
+        </form>
+      </div>
+      {% endif %}
+    </header>
+
+    <div id="flash"></div>
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>
