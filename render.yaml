@@ -1,0 +1,35 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploy: Dashboard → New → Blueprint → select this repo
+
+services:
+  - type: web
+    name: dsa-tracker
+    runtime: docker
+    plan: starter
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /login
+    envVars:
+      - key: DSA_DB_PATH
+        value: /data/dsa_tracker.db
+      - key: APP_BASE_URL
+        sync: false
+      - key: DSA_SESSION_SECRET
+        generateValue: true
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_TLS
+        value: "1"
+    disk:
+      name: dsa-data
+      mountPath: /data
+      sizeGB: 1

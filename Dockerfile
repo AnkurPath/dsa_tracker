@@ -29,5 +29,5 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
 
-# Bind all interfaces inside the container; SQLite file lives under /data when mounted
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Render (and others) inject $PORT; default to 8000 locally
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

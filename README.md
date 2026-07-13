@@ -90,3 +90,45 @@ docker run -d --name dsa-tracker \
 App: [http://localhost:8000](http://localhost:8000). SQLite persists in the `dsa_data` volume.
 
 To make the image public: GitHub → Packages → `dsa_tracker` → Package settings → Change visibility.
+
+## Deploy on Render
+
+Your app needs a **persistent disk** for SQLite, so use at least the **Starter** plan (free web services wipe the filesystem on restart).
+
+### Option A — Blueprint (easiest)
+
+1. Push this repo to GitHub (including `Dockerfile` + `render.yaml`).
+2. Go to [https://dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**.
+3. Connect the `dsa_tracker` repo and apply the blueprint.
+4. Fill in env vars when prompted:
+   - `APP_BASE_URL` → `https://YOUR-SERVICE.onrender.com` (no trailing slash)
+   - `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (Gmail app password)
+5. Wait for the first deploy. Open the service URL and register with email.
+
+### Option B — Manual Web Service
+
+1. **New** → **Web Service** → connect this GitHub repo.
+2. Runtime: **Docker** (Render builds from `Dockerfile`).
+3. Instance: **Starter** (required for disk).
+4. **Disk**: add a disk, mount path `/data`, size 1 GB.
+5. **Environment**:
+
+| Key | Value |
+|---|---|
+| `DSA_DB_PATH` | `/data/dsa_tracker.db` |
+| `APP_BASE_URL` | `https://YOUR-SERVICE.onrender.com` |
+| `DSA_SESSION_SECRET` | long random string |
+| `SMTP_HOST` | `smtp.gmail.com` |
+| `SMTP_PORT` | `587` |
+| `SMTP_USER` | your Gmail |
+| `SMTP_PASSWORD` | Gmail app password |
+| `SMTP_FROM` | `DSA Tracker <you@gmail.com>` |
+| `SMTP_TLS` | `1` |
+
+6. Deploy → open the URL → `/register`.
+
+### After deploy
+
+- Email links use `APP_BASE_URL` — set it to your real `https://….onrender.com`.
+- Redeploy happens automatically on push to `main`.
+- Check **Logs** if the service won’t start (SMTP/env mistakes show up there).
