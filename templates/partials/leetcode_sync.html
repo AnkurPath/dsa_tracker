@@ -20,7 +20,11 @@
     <div class="min-w-0">
       <h2 class="font-display text-lg font-bold text-ink">LeetCode import</h2>
       <p class="mt-1 text-sm text-ink-muted">
-        Pulls your <span class="font-medium text-ink">20 most recent</span> AC solves (LeetCode’s public limit).
+        {% if user.leetcode_username and user.leetcode_sync_since %}
+          Fresh mode — only new ACs after connect.
+        {% else %}
+          Up to 20 recent ACs (LeetCode public limit).
+        {% endif %}
       </p>
       {% if user.leetcode_username %}
       <p class="mt-2 truncate text-sm text-ink">
@@ -30,6 +34,11 @@
           rel="noopener"
           class="font-semibold underline decoration-ink/20 underline-offset-2 hover:decoration-ink"
         >@{{ user.leetcode_username }}</a>
+        {% if user.leetcode_sync_since %}
+          <span class="text-ink-muted">· fresh</span>
+        {% else %}
+          <span class="text-ink-muted">· import history</span>
+        {% endif %}
       </p>
       {% endif %}
     </div>
@@ -67,6 +76,35 @@
       spellcheck="false"
       class="w-full rounded-lg border border-paper-wash bg-paper px-3 py-2 text-sm text-ink outline-none ring-ink/20 placeholder:text-ink-muted/60 focus:ring-2"
     />
+    <fieldset class="space-y-1.5">
+      <legend class="sr-only">Sync mode</legend>
+      <label class="flex cursor-pointer items-start gap-2 rounded-lg border border-paper-wash bg-paper px-2.5 py-2 text-xs text-ink-muted has-[:checked]:border-ink/30 has-[:checked]:text-ink">
+        <input
+          type="radio"
+          name="sync_mode"
+          value="import"
+          class="mt-0.5"
+          {% if not user.leetcode_sync_since %}checked{% endif %}
+        />
+        <span>
+          <span class="font-semibold text-ink">Import recent</span>
+          — pull older ACs in the last 20
+        </span>
+      </label>
+      <label class="flex cursor-pointer items-start gap-2 rounded-lg border border-paper-wash bg-paper px-2.5 py-2 text-xs text-ink-muted has-[:checked]:border-ink/30 has-[:checked]:text-ink">
+        <input
+          type="radio"
+          name="sync_mode"
+          value="fresh"
+          class="mt-0.5"
+          {% if user.leetcode_sync_since %}checked{% endif %}
+        />
+        <span>
+          <span class="font-semibold text-ink">Fresh from today</span>
+          — skip old solves; only new ACs
+        </span>
+      </label>
+    </fieldset>
     <button
       type="submit"
       class="rounded-lg bg-ink px-3 py-2 text-sm font-semibold text-paper transition hover:bg-ink-soft"

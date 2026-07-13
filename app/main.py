@@ -455,10 +455,13 @@ def save_leetcode_username(
     request: Request,
     user: CurrentUser,
     leetcode_username: str = Form(""),
+    sync_mode: str = Form("import"),
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
     try:
-        services.set_leetcode_username(db, user, leetcode_username)
+        services.set_leetcode_username(
+            db, user, leetcode_username, sync_mode=sync_mode
+        )
     except ValueError as exc:
         if _is_htmx(request):
             response = _render(
@@ -481,11 +484,27 @@ def save_leetcode_username(
 
     sync_message = None
     sync_kind = None
+    mode = (sync_mode or "import").strip().lower()
     if user.leetcode_username:
         result = services.sync_leetcode_solves(db, user, force=True)
         sync_message, sync_kind = _sync_flash(result)
         if not sync_message and not result.error:
-            sync_message = f"Connected @{user.leetcode_username}. New AC solves will auto-import."
+            if mode == "fresh":
+                sync_message = (
+                    f"Connected @{user.leetcode_username} — fresh start. "
+                    "Only new AC solves from now on will be imported."
+                )
+            else:
+                sync_message = (
+                    f"Connected @{user.leetcode_username}. "
+                    "Recent ACs imported; new solves will auto-import."
+                )
+            sync_kind = "ok"
+        elif mode == "fresh" and result.imported == 0 and not result.error:
+            sync_message = (
+                f"Connected @{user.leetcode_username} — fresh start. "
+                "Older solves were skipped."
+            )
             sync_kind = "ok"
     else:
         sync_message = "LeetCode sync disconnected."
@@ -494,14 +513,12 @@ def save_leetcode_username(
     ctx = _dashboard_context(db, user)
     if _is_htmx(request):
         if sync_message:
-            response = _render(
+            return _render(
                 request,
                 "partials/dashboard_sections.html",
                 {**ctx, "sync_message": sync_message, "sync_kind": sync_kind},
                 user=user,
             )
-            # Also push a flash for visibility
-            return response
         return _render(
             request,
             "partials/dashboard_sections.html",

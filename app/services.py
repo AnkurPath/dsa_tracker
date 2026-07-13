@@ -228,17 +228,35 @@ SYNC_COOLDOWN = timedelta(minutes=2)
 AUTO_IMPORT_METHOD = SolveMethod.VIDEO
 
 
-def set_leetcode_username(db: Session, user: User, username: str | None) -> User:
-    """Link or unlink a LeetCode profile. Empty username clears the link."""
+def set_leetcode_username(
+    db: Session,
+    user: User,
+    username: str | None,
+    *,
+    sync_mode: str = "import",
+) -> User:
+    """Link or unlink a LeetCode profile.
+
+    sync_mode:
+      - \"import\" — import recent AC history (within LeetCode's public limit)
+      - \"fresh\" — ignore older ACs; only sync solves from now on
+    """
     if not username or not username.strip():
         user.leetcode_username = None
         user.leetcode_last_synced_at = None
+        user.leetcode_sync_since = None
         db.commit()
         db.refresh(user)
         return user
 
     verified = verify_leetcode_username(username)
     user.leetcode_username = verified
+    mode = (sync_mode or "import").strip().lower()
+    if mode == "fresh":
+        # Cutoff = now; submissions before this are ignored forever for this link
+        user.leetcode_sync_since = int(utcnow().timestamp())
+    else:
+        user.leetcode_sync_since = None
     db.commit()
     db.refresh(user)
     return user
@@ -267,6 +285,8 @@ def sync_leetcode_solves(
     except ValueError as exc:
         return LeetCodeSyncResult(error=str(exc))
 
+    since = user.leetcode_sync_since  # None = import all recent
+
     existing_slugs = {
         (slug or "").strip().lower()
         for slug in db.scalars(
@@ -278,6 +298,9 @@ def sync_leetcode_solves(
     for submission in submissions:
         slug = (submission.slug or "").strip().lower()
         if not slug or slug in existing_slugs:
+            result.skipped += 1
+            continue
+        if since is not None and submission.timestamp < since:
             result.skipped += 1
             continue
         info = fetch_problem_by_slug(slug, title_hint=submission.title)

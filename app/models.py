@@ -77,6 +77,8 @@ class User(Base):
     email_send_time: Mapped[str] = mapped_column(String(5), default="09:00")  # HH:MM IST
     email_last_reminder_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     leetcode_username: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    # Unix timestamp: only AC submissions at/after this time are imported (None = all recent)
+    leetcode_sync_since: Mapped[int | None] = mapped_column(Integer, nullable=True)
     leetcode_last_synced_at: Mapped[datetime | None] = mapped_column(
         DateTime, nullable=True
     )

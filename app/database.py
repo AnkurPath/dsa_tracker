@@ -65,6 +65,10 @@ def _ensure_leetcode_sync_columns() -> None:
             conn.execute(
                 text("ALTER TABLE users ADD COLUMN leetcode_last_synced_at DATETIME")
             )
+        if "leetcode_sync_since" not in cols:
+            conn.execute(
+                text("ALTER TABLE users ADD COLUMN leetcode_sync_since INTEGER")
+            )
         if "email" not in cols:
             conn.execute(text("ALTER TABLE users ADD COLUMN email VARCHAR(255)"))
         # Unique index for email login (ignore nulls / duplicates until cleaned)
