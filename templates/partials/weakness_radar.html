@@ -1,0 +1,56 @@
+{% if radar and radar.total_active > 0 %}
+<section>
+  <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h2 class="font-display text-2xl font-bold text-ink">Weakness radar</h2>
+      <p class="mt-1 text-sm text-ink-muted">
+        Patterns from your latest attempts — topics, difficulty, and frequent-review load.
+      </p>
+    </div>
+    <div class="rounded-lg bg-paper-elev px-3 py-2 text-sm shadow-soft">
+      <span class="font-semibold text-ink">{{ radar.own_pct }}%</span>
+      <span class="text-ink-muted"> own-solve rate</span>
+    </div>
+  </div>
+
+  <div class="mb-4 grid grid-cols-3 gap-3">
+    <div class="rounded-xl bg-paper-elev px-3 py-3 shadow-soft sm:px-4">
+      <p class="text-xs font-medium uppercase tracking-wide text-ink-muted">Needed help</p>
+      <p class="mt-1 font-display text-2xl font-bold text-due">{{ radar.help_count }}</p>
+    </div>
+    <div class="rounded-xl bg-paper-elev px-3 py-3 shadow-soft sm:px-4">
+      <p class="text-xs font-medium uppercase tracking-wide text-ink-muted">Frequent</p>
+      <p class="mt-1 font-display text-2xl font-bold text-wait">{{ radar.frequent_count }}</p>
+    </div>
+    <div class="rounded-xl bg-paper-elev px-3 py-3 shadow-soft sm:px-4">
+      <p class="text-xs font-medium uppercase tracking-wide text-ink-muted">Due now</p>
+      <p class="mt-1 font-display text-2xl font-bold text-ink">{{ radar.due_count }}</p>
+    </div>
+  </div>
+
+  {% if radar.headlines %}
+  <ul class="mb-5 space-y-2 rounded-xl border border-ink/10 bg-paper-elev/80 px-4 py-4 text-sm text-ink-soft">
+    {% for line in radar.headlines %}
+    <li class="flex gap-2">
+      <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full {% if 'Falling' in line or 'need work' in line or 'Own-solve' in line %}bg-due{% else %}bg-wait{% endif %}"></span>
+      <span>{{ line }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if radar.by_difficulty %}
+  <div class="mb-5 flex flex-wrap gap-2">
+    {% for diff in radar.by_difficulty %}
+    <span class="rounded-lg bg-paper-elev px-3 py-1.5 text-xs font-medium text-ink-muted shadow-soft">
+      {{ diff.name }} · {{ diff.own_pct }}% own ({{ diff.total }})
+    </span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% include "partials/topic_gaps.html" %}
+</section>
+{% else %}
+  {% include "partials/topic_gaps.html" %}
+{% endif %}

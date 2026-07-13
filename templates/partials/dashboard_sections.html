@@ -1,52 +1,107 @@
-{# Stats + due / upcoming / mastered lists #}
+{# Stats + tools row + queues / radar #}
+{% if sync_message %}
+  {% with message=sync_message, kind=sync_kind or 'ok' %}
+    {% include "partials/flash.html" %}
+  {% endwith %}
+{% endif %}
+
 {% include "partials/stats.html" %}
 
-<section class="mb-10">
-  <div class="mb-4 flex items-baseline justify-between gap-3">
-    <h2 class="font-display text-2xl font-bold text-ink">Due now</h2>
-    <span class="text-sm text-ink-muted">{{ due|length }} problem{{ 's' if due|length != 1 else '' }}</span>
-  </div>
-  {% if due %}
-    <ul class="space-y-3">
-      {% for problem in due %}
-        {% include "partials/problem_row.html" with context %}
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p class="rounded-xl border border-dashed border-ink/15 bg-paper-elev/60 px-5 py-8 text-center text-ink-muted">
-      Nothing due today. Keep solving — your next revision will show up here.
-    </p>
-  {% endif %}
-</section>
+<div class="mb-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-4 lg:items-stretch">
+  {% include "partials/leetcode_sync.html" %}
 
-<section class="mb-10">
-  <div class="mb-4 flex items-baseline justify-between gap-3">
-    <h2 class="font-display text-2xl font-bold text-ink">Upcoming</h2>
-    <span class="text-sm text-ink-muted">{{ upcoming|length }} scheduled</span>
-  </div>
-  {% if upcoming %}
-    <ul class="space-y-3">
-      {% for problem in upcoming %}
-        {% include "partials/problem_row.html" with context %}
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p class="rounded-xl border border-dashed border-ink/15 bg-paper-elev/60 px-5 py-8 text-center text-ink-muted">
-      No upcoming revisions yet.
-    </p>
-  {% endif %}
-</section>
+  <section class="flex flex-col justify-between rounded-xl bg-ink px-4 py-4 text-paper shadow-soft sm:px-5">
+    <div>
+      <h2 class="font-display text-lg font-bold">Session mode</h2>
+      <p class="mt-1 text-sm text-paper/75">
+        Focused review of due problems, one at a time with a timer.
+      </p>
+    </div>
+    {% if session_due_count %}
+    <form method="post" action="/session/start" class="mt-4 flex flex-col gap-2">
+      <select
+        name="topic"
+        class="w-full rounded-lg border border-paper/20 bg-paper/10 px-3 py-2 text-sm text-paper outline-none focus:ring-2 focus:ring-paper/30"
+      >
+        <option value="">All due topics</option>
+        {% for topic in session_topics %}
+          <option value="{{ topic.slug }}">{{ topic.name }} ({{ topic.due_count }})</option>
+        {% endfor %}
+      </select>
+      <button
+        type="submit"
+        class="rounded-lg bg-due px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+      >Start session ({{ session_due_count }})</button>
+    </form>
+    {% else %}
+    <p class="mt-4 text-sm text-paper/60">Nothing due right now</p>
+    {% endif %}
+  </section>
 
-{% if mastered %}
-<section class="mb-4">
-  <div class="mb-4 flex items-baseline justify-between gap-3">
-    <h2 class="font-display text-2xl font-bold text-ink">Mastered</h2>
-    <span class="text-sm text-ink-muted">Parked when you feel solid</span>
+  {% include "partials/activity_calendar.html" %}
+  {% include "partials/email_settings.html" %}
+</div>
+
+<div class="grid gap-8 lg:grid-cols-12 lg:gap-10">
+  {# —— Queues —— #}
+  <div id="problems" class="min-w-0 space-y-10 scroll-mt-6 lg:col-span-7 xl:col-span-8">
+    <section>
+      <div class="mb-4 flex items-baseline justify-between gap-3">
+        <h2 class="font-display text-2xl font-bold text-ink">Due now</h2>
+        <span class="text-sm text-ink-muted">{{ due|length }} problem{{ 's' if due|length != 1 else '' }}</span>
+      </div>
+      {% if due %}
+        <ul class="space-y-3">
+          {% for problem in due %}
+            {% include "partials/problem_row.html" with context %}
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="rounded-xl border border-dashed border-ink/15 bg-paper-elev/60 px-5 py-8 text-center text-ink-muted">
+          {% if topic_slug %}
+            No due problems for this topic.
+          {% else %}
+            Nothing due today. Keep solving — your next revision will show up here.
+          {% endif %}
+        </p>
+      {% endif %}
+    </section>
+
+    <section>
+      <div class="mb-4 flex items-baseline justify-between gap-3">
+        <h2 class="font-display text-2xl font-bold text-ink">Upcoming</h2>
+        <span class="text-sm text-ink-muted">{{ upcoming|length }} scheduled</span>
+      </div>
+      {% if upcoming %}
+        <ul class="space-y-3">
+          {% for problem in upcoming %}
+            {% include "partials/problem_row.html" with context %}
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="rounded-xl border border-dashed border-ink/15 bg-paper-elev/60 px-5 py-8 text-center text-ink-muted">
+          No upcoming revisions yet.
+        </p>
+      {% endif %}
+    </section>
+
+    {% if mastered %}
+    <section>
+      <div class="mb-4 flex items-baseline justify-between gap-3">
+        <h2 class="font-display text-2xl font-bold text-ink">Mastered</h2>
+        <span class="text-sm text-ink-muted">Parked when you feel solid</span>
+      </div>
+      <ul class="space-y-3">
+        {% for problem in mastered %}
+          {% include "partials/problem_row.html" with context %}
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
   </div>
-  <ul class="space-y-3">
-    {% for problem in mastered %}
-      {% include "partials/problem_row.html" with context %}
-    {% endfor %}
-  </ul>
-</section>
-{% endif %}
+
+  {# —— Insights sidebar —— #}
+  <aside class="min-w-0 space-y-8 lg:col-span-5 xl:col-span-4">
+    {% include "partials/weakness_radar.html" %}
+  </aside>
+</div>

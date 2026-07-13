@@ -15,14 +15,15 @@
 
   <form method="post" action="/login" class="mt-6 space-y-4 rounded-xl bg-paper-elev p-5 shadow-soft sm:p-6">
     <div>
-      <label for="username" class="mb-1.5 block text-sm font-medium text-ink">Username</label>
+      <label for="email" class="mb-1.5 block text-sm font-medium text-ink">Email</label>
       <input
-        type="text"
-        id="username"
-        name="username"
+        type="email"
+        id="email"
+        name="email"
         required
-        autocomplete="username"
-        value="{{ username or '' }}"
+        autocomplete="email"
+        value="{{ email or '' }}"
+        placeholder="you@example.com"
         class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 focus:ring-2"
       />
     </div>

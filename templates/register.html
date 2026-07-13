@@ -5,7 +5,7 @@
 {% block content %}
 <section class="mx-auto max-w-md">
   <h1 class="font-display text-2xl font-bold text-ink">Create account</h1>
-  <p class="mt-1 text-sm text-ink-muted">Your problems and revisions stay private to you.</p>
+  <p class="mt-1 text-sm text-ink-muted">Sign up with email — your problems stay private to you.</p>
 
   {% if error %}
   <div class="mt-5 rounded-lg border border-due/30 bg-due-soft px-4 py-3 text-sm text-due" role="alert">
@@ -15,20 +15,17 @@
 
   <form method="post" action="/register" class="mt-6 space-y-4 rounded-xl bg-paper-elev p-5 shadow-soft sm:p-6">
     <div>
-      <label for="username" class="mb-1.5 block text-sm font-medium text-ink">Username</label>
+      <label for="email" class="mb-1.5 block text-sm font-medium text-ink">Email</label>
       <input
-        type="text"
-        id="username"
-        name="username"
+        type="email"
+        id="email"
+        name="email"
         required
-        minlength="3"
-        maxlength="32"
-        pattern="[A-Za-z0-9_]+"
-        autocomplete="username"
-        value="{{ username or '' }}"
+        autocomplete="email"
+        value="{{ email or '' }}"
+        placeholder="you@example.com"
         class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 focus:ring-2"
       />
-      <p class="mt-1 text-xs text-ink-muted">3–32 characters, letters, numbers, underscores.</p>
     </div>
     <div>
       <label for="password" class="mb-1.5 block text-sm font-medium text-ink">Password</label>

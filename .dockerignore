@@ -1,0 +1,14 @@
+.venv
+__pycache__
+*.py[cod]
+*.egg-info
+.git
+.gitignore
+.env
+*.db
+dsa_tracker.db
+.DS_Store
+README.md
+.python-version
+agent-transcripts
+.cursor

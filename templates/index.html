@@ -7,15 +7,20 @@
   </div>
 {% endif %}
 
-{# —— Add problem —— #}
+{# —— Dashboard (includes LeetCode auto-import) —— #}
+<div id="dashboard">
+  {% include "partials/dashboard_sections.html" %}
+</div>
+
+{# —— Manual add (fallback when you want notes / solve method) —— #}
 <section
-  class="mb-10"
+  class="mt-10 mb-4 lg:max-w-3xl"
   x-data="{ open: false }"
 >
   <div class="flex items-end justify-between gap-4">
     <div>
       <h2 class="font-display text-2xl font-bold text-ink">Log a solve</h2>
-      <p class="mt-1 text-sm text-ink-muted">Paste a LeetCode URL after you finish a problem.</p>
+      <p class="mt-1 text-sm text-ink-muted">Manual fallback — paste a URL when you want notes or a different solve method.</p>
     </div>
     <button
       type="button"
@@ -63,7 +68,7 @@
               value="{{ value.value }}"
               class="peer sr-only"
               {% if loop.first %}required{% endif %}
-              {% if value.value == 'own' %}checked{% endif %}
+              {% if value.value == 'video' %}checked{% endif %}
             />
             <span class="block rounded-lg border border-paper-wash bg-paper px-3 py-3 text-center text-sm text-ink-muted transition peer-checked:border-ink peer-checked:bg-ink peer-checked:text-paper peer-checked:font-medium">
               {{ label }}
@@ -73,29 +78,16 @@
         </div>
       </div>
 
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label for="time_minutes" class="mb-1.5 block text-sm font-medium text-ink">Time taken (minutes)</label>
-          <input
-            type="number"
-            id="time_minutes"
-            name="time_minutes"
-            required
-            min="1"
-            placeholder="45"
-            class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 placeholder:text-ink-muted/60 focus:ring-2"
-          />
-        </div>
-        <div>
-          <label for="notes" class="mb-1.5 block text-sm font-medium text-ink">Notes <span class="font-normal text-ink-muted">(optional)</span></label>
-          <input
-            type="text"
-            id="notes"
-            name="notes"
-            placeholder="Two pointers, edge case on empty…"
-            class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 placeholder:text-ink-muted/60 focus:ring-2"
-          />
-        </div>
+      <div>
+        <label for="notes" class="mb-1.5 block text-sm font-medium text-ink">Notes <span class="font-normal text-ink-muted">(optional)</span></label>
+        <input
+          type="text"
+          id="notes"
+          name="notes"
+          placeholder="Two pointers, edge case on empty…"
+          class="w-full rounded-lg border border-paper-wash bg-paper px-3.5 py-2.5 text-ink outline-none ring-ink/20 placeholder:text-ink-muted/60 focus:ring-2"
+        />
+        <p class="mt-1.5 text-xs text-ink-muted">Time is logged when you revise, not when you first add.</p>
       </div>
 
       <div class="flex items-center gap-3">
@@ -110,9 +102,4 @@
     </form>
   </div>
 </section>
-
-{# —— Dashboard —— #}
-<div id="dashboard">
-  {% include "partials/dashboard_sections.html" %}
-</div>
 {% endblock %}

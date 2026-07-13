@@ -1,0 +1,89 @@
+{# Connect LeetCode username + pull recent AC solves into the queue #}
+<section
+  id="leetcode-sync"
+  class="relative flex flex-col overflow-hidden rounded-xl bg-paper-elev px-4 py-4 shadow-soft sm:px-5"
+>
+  <div
+    id="leetcode-sync-loader"
+    class="htmx-indicator pointer-events-none absolute inset-0 z-10 items-center justify-center bg-paper-elev/80 backdrop-blur-[1px]"
+  >
+    <div class="flex items-center gap-2 rounded-lg border border-paper-wash bg-paper px-3 py-2 text-sm font-medium text-ink shadow-soft">
+      <svg class="h-4 w-4 animate-spin text-due" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+        <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"></path>
+      </svg>
+      Syncing…
+    </div>
+  </div>
+
+  <div class="flex items-start justify-between gap-2">
+    <div class="min-w-0">
+      <h2 class="font-display text-lg font-bold text-ink">LeetCode import</h2>
+      <p class="mt-1 text-sm text-ink-muted">
+        Pulls your <span class="font-medium text-ink">20 most recent</span> AC solves (LeetCode’s public limit).
+      </p>
+      {% if user.leetcode_username %}
+      <p class="mt-2 truncate text-sm text-ink">
+        <a
+          href="https://leetcode.com/{{ user.leetcode_username }}/"
+          target="_blank"
+          rel="noopener"
+          class="font-semibold underline decoration-ink/20 underline-offset-2 hover:decoration-ink"
+        >@{{ user.leetcode_username }}</a>
+      </p>
+      {% endif %}
+    </div>
+    {% if user.leetcode_username %}
+    <form
+      hx-post="/leetcode/sync"
+      hx-target="#dashboard"
+      hx-swap="innerHTML"
+      hx-indicator="#leetcode-sync-loader"
+      class="shrink-0"
+    >
+      <button
+        type="submit"
+        class="rounded-lg border border-paper-wash bg-paper px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-ink/20"
+      >Sync</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <form
+    hx-post="/settings/leetcode"
+    hx-target="#dashboard"
+    hx-swap="innerHTML"
+    hx-indicator="#leetcode-sync-loader"
+    class="mt-auto flex flex-col gap-2 pt-4"
+  >
+    <label for="leetcode_username" class="sr-only">LeetCode username</label>
+    <input
+      type="text"
+      id="leetcode_username"
+      name="leetcode_username"
+      value="{{ user.leetcode_username or '' }}"
+      placeholder="leetcode-handle"
+      autocomplete="off"
+      spellcheck="false"
+      class="w-full rounded-lg border border-paper-wash bg-paper px-3 py-2 text-sm text-ink outline-none ring-ink/20 placeholder:text-ink-muted/60 focus:ring-2"
+    />
+    <button
+      type="submit"
+      class="rounded-lg bg-ink px-3 py-2 text-sm font-semibold text-paper transition hover:bg-ink-soft"
+    >
+      {% if user.leetcode_username %}Update{% else %}Connect{% endif %}
+    </button>
+  </form>
+
+  {% if user.leetcode_username %}
+  <div
+    hx-post="/leetcode/sync"
+    hx-trigger="every 3m"
+    hx-target="#dashboard"
+    hx-swap="innerHTML"
+    hx-vals='{"quiet": "1"}'
+    class="sr-only"
+    aria-hidden="true"
+  ></div>
+  {% endif %}
+</section>

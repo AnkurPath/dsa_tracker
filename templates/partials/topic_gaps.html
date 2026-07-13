@@ -1,0 +1,87 @@
+{% if topic_insights %}
+<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+  <h3 class="font-display text-lg font-bold text-ink">Topic tags</h3>
+  {% if topic_slug %}
+  <a href="/#problems" class="text-sm font-medium text-due hover:underline">Clear filter</a>
+  {% endif %}
+</div>
+
+{% if active_topic %}
+<p class="mb-3 text-sm text-ink-muted">
+  Showing problems tagged <span class="font-semibold text-ink">{{ active_topic.name }}</span>.
+</p>
+{% endif %}
+
+<div class="mb-4 flex flex-wrap gap-2">
+  {% for topic in topic_insights %}
+  <a
+    href="/?topic={{ topic.slug }}#problems"
+    class="rounded-lg px-3 py-1.5 text-xs font-semibold transition
+      {% if topic_slug == topic.slug %}
+        bg-ink text-paper
+      {% elif topic.behind %}
+        bg-due-soft text-due hover:brightness-95
+      {% else %}
+        bg-wait-soft text-wait hover:brightness-95
+      {% endif %}"
+  >{{ topic.name }}{% if topic.behind %} · behind{% endif %}</a>
+  {% endfor %}
+</div>
+
+<div class="space-y-2">
+  {% for topic in topic_insights %}
+  <div class="rounded-xl {% if topic_slug == topic.slug %}ring-2 ring-ink{% endif %} bg-paper-elev px-4 py-3 shadow-soft sm:px-5">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="/?topic={{ topic.slug }}#problems" class="font-semibold text-ink hover:underline">{{ topic.name }}</a>
+        {% if topic.behind %}
+          <span class="rounded bg-due-soft px-2 py-0.5 text-xs font-semibold text-due">Falling behind</span>
+        {% else %}
+          <span class="rounded bg-ok-soft px-2 py-0.5 text-xs font-semibold text-ok">On track</span>
+        {% endif %}
+      </div>
+      <span class="text-sm text-ink-muted">
+        {{ topic.own_pct }}% own · {{ topic.total }} problem{{ 's' if topic.total != 1 else '' }}
+      </span>
+    </div>
+    <div class="mt-2 h-2 overflow-hidden rounded-full bg-paper-wash">
+      <div
+        class="h-full rounded-full {% if topic.own_pct >= 70 %}bg-ok{% elif topic.own_pct >= 40 %}bg-wait{% else %}bg-due{% endif %}"
+        style="width: {{ topic.own_pct }}%"
+      ></div>
+    </div>
+    <p class="mt-2 text-xs text-ink-muted">
+      {{ topic.own_count }} own
+      · {{ topic.help_count }} needed help
+      · {{ topic.frequent_count }} on frequent review
+      {% if topic.due_count %}· {{ topic.due_count }} due{% endif %}
+    </p>
+    {% if topic.due_count %}
+    <form method="post" action="/session/start" class="mt-3">
+      <input type="hidden" name="topic" value="{{ topic.slug }}" />
+      <button
+        type="submit"
+        class="rounded-lg bg-ink px-3 py-1.5 text-xs font-semibold text-paper transition hover:bg-ink-soft"
+      >
+        Practice due {{ topic.name }} ({{ topic.due_count }})
+      </button>
+    </form>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% elif stats.total > 0 %}
+<div class="mb-2">
+  <h3 class="font-display text-lg font-bold text-ink">Topic tags</h3>
+  <p class="mt-1 text-sm text-ink-muted">
+    Older problems may be missing LeetCode topics. Sync once to build your gap view.
+  </p>
+</div>
+<button
+  type="button"
+  hx-post="/topics/sync"
+  hx-target="#dashboard"
+  hx-swap="innerHTML"
+  class="rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-paper transition hover:bg-ink-soft"
+>Sync topics from LeetCode</button>
+{% endif %}

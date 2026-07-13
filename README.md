@@ -6,7 +6,7 @@ Spaced-repetition practice tracker for LeetCode problems.
 
 ## Auth
 
-Create an account at `/register`, then log in. Each user’s problems are private.
+Create an account at `/register` with **email + password**, then log in. Each user’s problems are private.
 
 ## Schedule rules
 
@@ -16,9 +16,31 @@ Create an account at `/register`, then log in. Each user’s problems are privat
 | By your own (before 2nd revision) | **Spaced** — 2 days, then 4 days |
 | By your own (on/after 2nd revision) | **Random** — between **4 and 60 days** |
 
-Mark a problem **Mastered** when you want to drop it from active revision.
+## Practice tools
 
-Each attempt records **how** you solved it and **time taken**.
+- **LeetCode auto-import** — connect your public username; recent accepted solves land in your queue automatically (skips problems already tracked)
+- **Email reminders** — daily email of problems due today (syncs LeetCode first)
+- **Session mode** — clear due revisions one-by-one with a timer (weak topics prioritized)
+- **Weakness radar** — own-solve rate, frequent-review load, and coach-style headlines
+- **Topic tags** — pulled from LeetCode; filter the dashboard and spot gaps by topic
+
+## Email (optional)
+
+Set these in `.env` (see `.env.example`):
+
+```bash
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=you@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_FROM="DSA Tracker <you@gmail.com>"
+APP_BASE_URL=http://127.0.0.1:8000
+```
+
+On the dashboard, choose a **send time in IST** (mail goes to your account email). At that time each day the app syncs LeetCode, then:
+
+- sends a **due problems** email if revisions remain (links open DSA Tracker)
+- sends a **congratulations** email if you already cleared today’s queue
 
 ## Run
 
@@ -30,3 +52,41 @@ uv run main.py
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 Optional: set `DSA_SESSION_SECRET` for signed session cookies in production.
+
+## Docker
+
+### Local build
+
+```bash
+cp .env.example .env   # fill SMTP + APP_BASE_URL
+docker compose up --build -d
+```
+
+### Pull from GHCR (run anywhere)
+
+Images are published to [`ghcr.io/ankurpath/dsa_tracker`](https://github.com/AnkurPath/dsa_tracker/pkgs/container/dsa_tracker) on every push to `main`.
+
+```bash
+# If the package is private, log in first:
+# echo $GITHUB_TOKEN | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+
+cp .env.example .env   # fill SMTP + APP_BASE_URL (+ DSA_SESSION_SECRET)
+docker compose -f docker-compose.ghcr.yml pull
+docker compose -f docker-compose.ghcr.yml up -d
+```
+
+Or without Compose:
+
+```bash
+docker pull ghcr.io/ankurpath/dsa_tracker:latest
+docker run -d --name dsa-tracker \
+  -p 8000:8000 \
+  --env-file .env \
+  -e DSA_DB_PATH=/data/dsa_tracker.db \
+  -v dsa_data:/data \
+  ghcr.io/ankurpath/dsa_tracker:latest
+```
+
+App: [http://localhost:8000](http://localhost:8000). SQLite persists in the `dsa_data` volume.
+
+To make the image public: GitHub → Packages → `dsa_tracker` → Package settings → Change visibility.

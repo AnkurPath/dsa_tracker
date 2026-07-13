@@ -5,12 +5,14 @@ from datetime import date, datetime, timezone
 
 from sqlalchemy import (
     Boolean,
+    Column,
     Date,
     DateTime,
     Enum,
     ForeignKey,
     Integer,
     String,
+    Table,
     Text,
     UniqueConstraint,
 )
@@ -56,17 +58,52 @@ def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
 
+problem_topics = Table(
+    "problem_topics",
+    Base.metadata,
+    Column("problem_id", ForeignKey("problems.id", ondelete="CASCADE"), primary_key=True),
+    Column("topic_id", ForeignKey("topics.id", ondelete="CASCADE"), primary_key=True),
+)
+
+
 class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(128), nullable=False)
+    email: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
+    email_reminders: Mapped[bool] = mapped_column(Boolean, default=True)
+    email_send_time: Mapped[str] = mapped_column(String(5), default="09:00")  # HH:MM IST
+    email_last_reminder_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    leetcode_username: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    leetcode_last_synced_at: Mapped[datetime | None] = mapped_column(
+        DateTime, nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
-    problems: Mapped[list[Problem]] = relationship(
+    problems: Mapped[list["Problem"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
+    )
+
+    @property
+    def display_name(self) -> str:
+        if self.email:
+            return self.email.split("@", 1)[0]
+        return self.username
+
+
+class Topic(Base):
+    __tablename__ = "topics"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    slug: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+
+    problems: Mapped[list[Problem]] = relationship(
+        secondary=problem_topics,
+        back_populates="topics",
     )
 
 
@@ -93,6 +130,10 @@ class Problem(Base):
     )
 
     user: Mapped[User] = relationship(back_populates="problems")
+    topics: Mapped[list[Topic]] = relationship(
+        secondary=problem_topics,
+        back_populates="problems",
+    )
     attempts: Mapped[list[Attempt]] = relationship(
         back_populates="problem",
         cascade="all, delete-orphan",
@@ -114,6 +155,11 @@ class Problem(Base):
         if attempt.revision_number >= 2:
             return "Random"
         return "Spaced"
+
+    @property
+    def needs_help(self) -> bool:
+        attempt = self.last_attempt
+        return attempt is not None and attempt.solve_method != SolveMethod.OWN
 
     @property
     def is_due(self) -> bool:
@@ -138,7 +184,7 @@ class Attempt(Base):
         Enum(SolveMethod, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    time_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
+    time_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 

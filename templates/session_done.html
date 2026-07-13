@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Session complete · DSA Tracker{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-lg text-center">
+  <p class="text-sm font-medium uppercase tracking-wide text-ok">Session complete</p>
+  <h1 class="mt-2 font-display text-3xl font-extrabold text-ink">Nice work</h1>
+  <p class="mt-3 text-ink-muted">
+    You logged {{ summary.completed }} revision{{ 's' if summary.completed != 1 else '' }}
+    · {{ summary.own }} on your own
+    · {{ summary.help }} with help
+  </p>
+  {% if summary.topic_name %}
+  <p class="mt-1 text-sm text-ink-muted">Focused topic: {{ summary.topic_name }}</p>
+  {% endif %}
+
+  {% if radar and radar.headlines %}
+  <ul class="mt-8 space-y-2 rounded-xl bg-paper-elev px-5 py-5 text-left text-sm text-ink-soft shadow-soft">
+    {% for line in radar.headlines[:3] %}
+    <li>{{ line }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <div class="mt-8 flex flex-wrap justify-center gap-3">
+    <a href="/" class="rounded-lg bg-ink px-5 py-2.5 text-sm font-semibold text-paper transition hover:bg-ink-soft">Back to tracker</a>
+    {% if radar and radar.due_count %}
+    <form method="post" action="/session/start">
+      <button type="submit" class="rounded-lg bg-due px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110">
+        Start another session
+      </button>
+    </form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -41,33 +41,54 @@
         linear-gradient(180deg, #eef2f7 0%, #f4f6f9 40%, #e8edf4 100%);
       min-height: 100vh;
     }
+    .htmx-request.htmx-indicator,
     .htmx-request .htmx-indicator { opacity: 1; }
     .htmx-indicator { opacity: 0; transition: opacity 200ms ease; }
+    #leetcode-sync-loader.htmx-indicator,
+    #email-send-loader.htmx-indicator { display: none; opacity: 1; }
+    #leetcode-sync-loader.htmx-request,
+    .htmx-request #leetcode-sync-loader,
+    #email-send-loader.htmx-request,
+    .htmx-request #email-send-loader { display: flex; }
+    form.htmx-request button[type="submit"].email-send-btn {
+      pointer-events: none;
+      opacity: 0.7;
+    }
   </style>
   {% block head %}{% endblock %}
 </head>
 <body class="font-sans text-ink antialiased">
-  <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
-    <header class="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <a href="/" class="group inline-block">
-        <p class="font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
-          DSA Tracker
-        </p>
-        <p class="mt-2 max-w-md text-ink-muted">
-          Frequent reviews until you solve it yourself — then spaced, then random.
-        </p>
-      </a>
-      {% if user %}
-      <div class="flex items-center gap-3 self-start sm:pt-2">
-        <span class="text-sm text-ink-muted">Signed in as <span class="font-semibold text-ink">{{ user.username }}</span></span>
-        <form method="post" action="/logout">
-          <button
-            type="submit"
-            class="rounded-lg border border-paper-wash bg-paper-elev px-3 py-1.5 text-sm font-medium text-ink-muted transition hover:border-ink/20 hover:text-ink"
-          >Log out</button>
-        </form>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+    <header class="mb-8 lg:mb-10">
+      <div class="flex items-start justify-between gap-4">
+        <a href="/" class="group min-w-0">
+          <p class="font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
+            DSA Tracker
+          </p>
+          <p class="mt-2 max-w-xl text-ink-muted">
+            Frequent reviews until you solve it yourself — then spaced, then random.
+          </p>
+        </a>
+        {% if user %}
+        <div class="flex shrink-0 flex-col items-end gap-2 pt-1">
+          <p class="text-right text-sm text-ink-muted">
+            <span class="font-semibold text-ink">{{ user.email or user.display_name }}</span>
+          </p>
+          <div class="flex items-center gap-2">
+            <a
+              href="/session"
+              class="rounded-lg border border-paper-wash bg-paper-elev px-3 py-1.5 text-sm font-semibold text-due transition hover:border-due/30"
+            >Session</a>
+            <form method="post" action="/logout">
+              <button
+                type="submit"
+                class="rounded-lg border border-paper-wash bg-paper-elev px-3 py-1.5 text-sm font-medium text-ink-muted transition hover:border-ink/20 hover:text-ink"
+              >Log out</button>
+            </form>
+          </div>
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
     </header>
 
     <div id="flash"></div>
