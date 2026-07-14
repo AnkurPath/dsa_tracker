@@ -1,4 +1,4 @@
-"""Run the DSA Tracker web app."""
+"""Run the DSA Revision Helper web app."""
 
 import uvicorn
 

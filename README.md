@@ -1,6 +1,6 @@
-# DSA Tracker
+# DSA Revision Helper
 
-Spaced-repetition practice tracker for LeetCode problems.
+Spaced-repetition practice helper for LeetCode problems.
 
 **Stack:** FastAPI · Jinja2 · HTMX · Alpine.js · TailwindCSS · SQLite
 
@@ -33,13 +33,13 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=you@gmail.com
 SMTP_PASSWORD=your-app-password
-SMTP_FROM="DSA Tracker <you@gmail.com>"
+SMTP_FROM="DSA Revision Helper <you@gmail.com>"
 APP_BASE_URL=http://127.0.0.1:8000
 ```
 
 On the dashboard, choose a **send time in IST** (mail goes to your account email). At that time each day the app syncs LeetCode, then:
 
-- sends a **due problems** email if revisions remain (links open DSA Tracker)
+- sends a **due problems** email if revisions remain (links open DSA Revision Helper)
 - sends a **congratulations** email if you already cleared today’s queue
 
 ## Run
@@ -122,7 +122,7 @@ Your app needs a **persistent disk** for SQLite, so use at least the **Starter**
 | `SMTP_PORT` | `587` |
 | `SMTP_USER` | your Gmail |
 | `SMTP_PASSWORD` | Gmail app password |
-| `SMTP_FROM` | `DSA Tracker <you@gmail.com>` |
+| `SMTP_FROM` | `DSA Revision Helper <you@gmail.com>` |
 | `SMTP_TLS` | `1` |
 
 6. Deploy → open the URL → `/register`.

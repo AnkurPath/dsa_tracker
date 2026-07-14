@@ -61,7 +61,7 @@ async def lifespan(_app: FastAPI):
         pass
 
 
-app = FastAPI(title="DSA Tracker", lifespan=lifespan)
+app = FastAPI(title="DSA Revision Helper", lifespan=lifespan)
 app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET, max_age=60 * 60 * 24 * 30)
 _static_dir = BASE_DIR / "static"
 _static_dir.mkdir(parents=True, exist_ok=True)

@@ -1,7 +1,7 @@
 [project]
 name = "dsa-tracker"
 version = "0.1.0"
-description = "Spaced-repetition DSA tracker for LeetCode practice"
+description = "Spaced-repetition DSA revision helper for LeetCode practice"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

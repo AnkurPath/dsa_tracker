@@ -421,7 +421,7 @@ def build_daily_email(
     count = len(due)
 
     if count:
-        subject = f"DSA Tracker: {count} problem{'s' if count != 1 else ''} due today"
+        subject = f"DSA Revision Helper: {count} problem{'s' if count != 1 else ''} due today"
         lines = [
             f"Hi {user.display_name},",
             "",
@@ -438,7 +438,7 @@ def build_daily_email(
                 f"Open your queue: {home}",
                 f"Start a session: {session_url}",
                 "",
-                "— DSA Tracker",
+                "— DSA Revision Helper",
             ]
         )
         text_body = "\n".join(lines)
@@ -455,14 +455,14 @@ def build_daily_email(
         <p>You still have <strong>{count}</strong> revision{'s' if count != 1 else ''} due today:</p>
         <ul>{items}</ul>
         <p>
-          <a href="{home}">Open DSA Tracker</a>
+          <a href="{home}">Open DSA Revision Helper</a>
           · <a href="{session_url}">Start a session</a>
         </p>
-        <p>— DSA Tracker</p>
+        <p>— DSA Revision Helper</p>
         """
         return subject, text_body, html_body
 
-    subject = "DSA Tracker: congratulations — you're clear for today"
+    subject = "DSA Revision Helper: congratulations — you're clear for today"
     text_body = "\n".join(
         [
             f"Hi {user.display_name},",
@@ -470,17 +470,17 @@ def build_daily_email(
             "Congratulations! You cleared today's revisions before reminder time.",
             "Nothing is due right now — keep the streak going.",
             "",
-            f"Open DSA Tracker: {home}",
+            f"Open DSA Revision Helper: {home}",
             "",
-            "— DSA Tracker",
+            "— DSA Revision Helper",
         ]
     )
     html_body = f"""
     <p>Hi {user.display_name},</p>
     <p><strong>Congratulations!</strong> You cleared today's revisions before reminder time.</p>
     <p>Nothing is due right now — keep the streak going.</p>
-    <p><a href="{home}">Open DSA Tracker</a></p>
-    <p>— DSA Tracker</p>
+    <p><a href="{home}">Open DSA Revision Helper</a></p>
+    <p>— DSA Revision Helper</p>
     """
     return subject, text_body, html_body
 

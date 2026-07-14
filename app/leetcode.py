@@ -49,7 +49,7 @@ LEETCODE_USERNAME_RE = re.compile(r"^[A-Za-z0-9_-]{3,64}$")
 DEFAULT_HEADERS = {
     "Content-Type": "application/json",
     "Referer": "https://leetcode.com",
-    "User-Agent": "Mozilla/5.0 (compatible; DSA-Tracker/1.0)",
+    "User-Agent": "Mozilla/5.0 (compatible; DSA-Revision-Helper/1.0)",
 }
 
 

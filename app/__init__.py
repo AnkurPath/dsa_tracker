@@ -1,1 +1,1 @@
-"""DSA Tracker — spaced-repetition practice for LeetCode problems."""
+"""DSA Revision Helper — spaced-repetition practice for LeetCode problems."""
