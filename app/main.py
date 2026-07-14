@@ -529,6 +529,11 @@ def save_leetcode_username(
     return RedirectResponse("/", status_code=303)
 
 
+_EMAIL_LOCKED_MSG = (
+    "Email reminders are locked — unavailable on Render free tier."
+)
+
+
 @app.post("/settings/email", response_class=HTMLResponse)
 def save_email_settings(
     request: Request,
@@ -537,48 +542,24 @@ def save_email_settings(
     email_send_time: str = Form("09:00"),
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
-    try:
-        services.set_email_settings(
-            db,
-            user,
-            reminders=email_reminders.strip() in {"1", "on", "true", "yes"},
-            send_time=email_send_time,
-        )
-    except ValueError as exc:
-        if _is_htmx(request):
-            response = _render(
-                request,
-                "partials/flash.html",
-                {"message": str(exc), "kind": "error"},
-                status_code=400,
-                user=user,
-            )
-            response.headers["HX-Retarget"] = "#flash"
-            response.headers["HX-Reswap"] = "innerHTML"
-            return response
-        return _render(
+    if _is_htmx(request):
+        response = _render(
             request,
-            "index.html",
-            {**_dashboard_context(db, user), "error": str(exc)},
-            status_code=400,
+            "partials/flash.html",
+            {"message": _EMAIL_LOCKED_MSG, "kind": "error"},
+            status_code=503,
             user=user,
         )
-
-    message = (
-        f"Reminders on — daily at {user.email_send_time} IST."
-        if user.email_reminders
-        else "Email reminders turned off."
+        response.headers["HX-Retarget"] = "#flash"
+        response.headers["HX-Reswap"] = "innerHTML"
+        return response
+    return _render(
+        request,
+        "index.html",
+        {**_dashboard_context(db, user), "error": _EMAIL_LOCKED_MSG},
+        status_code=503,
+        user=user,
     )
-    ctx = {
-        **_dashboard_context(db, user),
-        "sync_message": message,
-        "sync_kind": "ok",
-    }
-    if _is_htmx(request):
-        return _render(
-            request, "partials/dashboard_sections.html", ctx, user=user
-        )
-    return RedirectResponse("/", status_code=303)
 
 
 @app.post("/email/send-due", response_class=HTMLResponse)
@@ -587,19 +568,22 @@ def send_due_email_now(
     user: CurrentUser,
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
-    ok, message = services.send_due_reminder(
-        db, user, base_url=APP_BASE_URL, force=True, sync_leetcode=True
-    )
     ctx = {
         **_dashboard_context(db, user),
-        "sync_message": message,
-        "sync_kind": "ok" if ok else "error",
+        "sync_message": _EMAIL_LOCKED_MSG,
+        "sync_kind": "error",
     }
     if _is_htmx(request):
         return _render(
             request, "partials/dashboard_sections.html", ctx, user=user
         )
-    return _render(request, "index.html", {**ctx, "error": None}, user=user)
+    return _render(
+        request,
+        "index.html",
+        {**ctx, "error": _EMAIL_LOCKED_MSG},
+        status_code=503,
+        user=user,
+    )
 
 
 @app.post("/leetcode/sync", response_class=HTMLResponse)

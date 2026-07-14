@@ -1,88 +1,50 @@
-{# Reminder prefs for the account email (set at registration) #}
+{# Email sending locked — not reliable on Render free tier #}
 <section id="email-reminders" class="relative flex flex-col overflow-hidden rounded-xl bg-paper-elev px-4 py-3 shadow-soft sm:px-4">
   <div
-    id="email-send-loader"
-    class="htmx-indicator pointer-events-none absolute inset-0 z-10 items-center justify-center bg-paper-elev/80 backdrop-blur-[1px]"
+    class="pointer-events-none select-none blur-[2.5px] opacity-50"
+    aria-hidden="true"
   >
-    <div class="flex items-center gap-2 rounded-lg border border-paper-wash bg-paper px-3 py-2 text-sm font-medium text-ink shadow-soft">
-      <svg class="h-4 w-4 animate-spin text-due" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
-        <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"></path>
-      </svg>
-      Sending email…
-    </div>
-  </div>
-
-  <div class="flex items-start justify-between gap-2">
-    <div class="min-w-0">
-      <h2 class="font-display text-lg font-bold text-ink">Email reminders</h2>
-      {% if user.email %}
-      <p class="mt-1 truncate text-sm text-ink">
-        {{ user.email }}
-        · {{ user.email_send_time or '09:00' }} IST
-        {% if user.email_reminders %}<span class="text-ok">· on</span>{% else %}<span class="text-ink-muted">· off</span>{% endif %}
-      </p>
-      {% else %}
-      <p class="mt-1 text-xs text-due">No account email — sign up with email.</p>
-      {% endif %}
-      {% if not smtp_ready %}
-      <p class="mt-1 text-xs text-due">SMTP not configured.</p>
-      {% endif %}
-    </div>
-    {% if user.email and smtp_ready %}
-      {% if email_sent_today %}
-      <span class="shrink-0 rounded-lg border border-paper-wash bg-paper-wash/60 px-2.5 py-1 text-xs font-medium text-ink-muted">
-        Sent today
+    <div class="flex items-start justify-between gap-2">
+      <div class="min-w-0">
+        <h2 class="font-display text-lg font-bold text-ink">Email reminders</h2>
+        {% if user.email %}
+        <p class="mt-1 truncate text-sm text-ink">
+          {{ user.email }}
+          · {{ user.email_send_time or '09:00' }} IST
+          {% if user.email_reminders %}<span class="text-ok">· on</span>{% else %}<span class="text-ink-muted">· off</span>{% endif %}
+        </p>
+        {% else %}
+        <p class="mt-1 text-xs text-due">No account email — sign up with email.</p>
+        {% endif %}
+      </div>
+      <span class="shrink-0 rounded-lg border border-paper-wash bg-paper px-2.5 py-1 text-xs font-semibold text-ink">
+        Send now
       </span>
-      {% else %}
-      <form
-        hx-post="/email/send-due"
-        hx-target="#dashboard"
-        hx-swap="innerHTML"
-        hx-indicator="#email-send-loader"
-        class="shrink-0"
-      >
-        <button
-          type="submit"
-          class="email-send-btn rounded-lg border border-paper-wash bg-paper px-2.5 py-1 text-xs font-semibold text-ink transition hover:border-ink/20"
-        >Send now</button>
-      </form>
-      {% endif %}
+    </div>
+
+    {% if user.email %}
+    <div class="mt-auto flex flex-col gap-2 pt-3">
+      <div class="flex items-center gap-2">
+        <span class="shrink-0 text-xs font-medium text-ink-muted">IST</span>
+        <span class="min-w-0 flex-1 rounded-lg border border-paper-wash bg-paper px-2.5 py-1.5 text-sm text-ink">
+          {{ user.email_send_time or '09:00' }}
+        </span>
+      </div>
+      <span class="flex items-center gap-2 text-xs text-ink-muted">
+        <span class="inline-block h-3.5 w-3.5 rounded border border-paper-wash bg-paper"></span>
+        Auto daily
+      </span>
+      <span class="rounded-lg bg-ink px-3 py-1.5 text-center text-sm font-semibold text-paper">Save</span>
+    </div>
     {% endif %}
   </div>
 
-  {% if user.email %}
-  <form
-    hx-post="/settings/email"
-    hx-target="#dashboard"
-    hx-swap="innerHTML"
-    class="mt-auto flex flex-col gap-2 pt-3"
-  >
-    <div class="flex items-center gap-2">
-      <label for="email_send_time" class="shrink-0 text-xs font-medium text-ink-muted">IST</label>
-      <input
-        type="time"
-        id="email_send_time"
-        name="email_send_time"
-        value="{{ user.email_send_time or '09:00' }}"
-        required
-        class="min-w-0 flex-1 rounded-lg border border-paper-wash bg-paper px-2.5 py-1.5 text-sm text-ink outline-none ring-ink/20 focus:ring-2"
-      />
+  <div class="absolute inset-0 z-10 flex items-center justify-center bg-paper-elev/55 px-3 backdrop-blur-[1px]">
+    <div class="max-w-[14rem] text-center">
+      <p class="text-sm font-semibold text-ink">Email locked</p>
+      <p class="mt-1 text-xs leading-snug text-ink-muted">
+        Unavailable on Render free tier — SMTP can’t run reliably there.
+      </p>
     </div>
-    <label class="flex items-center gap-2 text-xs text-ink-muted">
-      <input
-        type="checkbox"
-        name="email_reminders"
-        value="1"
-        class="rounded border-paper-wash"
-        {% if user.email_reminders %}checked{% endif %}
-      />
-      Auto daily
-    </label>
-    <button
-      type="submit"
-      class="rounded-lg bg-ink px-3 py-1.5 text-sm font-semibold text-paper transition hover:bg-ink-soft"
-    >Save</button>
-  </form>
-  {% endif %}
+  </div>
 </section>
