@@ -26,15 +26,18 @@ Create an account at `/register` with **email + password**, then log in. Each us
 
 ## Database (required)
 
-Use a Supabase Postgres database. In the Supabase dashboard: **Project Settings → Database → Connection string (URI)**.
+Use a Supabase Postgres database. In the Supabase dashboard: **Project Settings → Database → Connect**.
 
-Put it in `.env` (see `.env.example`):
+**On Render:** use the **Connection pooling** URI (port `6543`, host like `*.pooler.supabase.com`). Do **not** use the direct `db.<project>.supabase.co:5432` host — it is often IPv6-only, and Render cannot reach it (`Network is unreachable`).
 
 ```bash
-DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres?sslmode=require
+# Session pooler (recommended for this app / SQLAlchemy)
+DATABASE_URL=postgresql://postgres.YOUR_PROJECT:YOUR_PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres?sslmode=require
 ```
 
-On Render, prefer the **pooler** URI (port `6543`) to avoid hitting connection limits. Tables are created automatically on first startup.
+Copy the exact URI from the dashboard (Method: **Session** pooler). Username is usually `postgres.<project-ref>`, not just `postgres`.
+
+Tables are created automatically on first startup.
 
 ## Email (optional)
 
@@ -110,7 +113,7 @@ Set `DATABASE_URL` to your Supabase connection string (pooler recommended). No p
 2. Go to [https://dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**.
 3. Connect the `dsa_tracker` repo and apply the blueprint.
 4. Fill in env vars when prompted:
-   - `DATABASE_URL` → Supabase Postgres URI (`?sslmode=require`)
+   - `DATABASE_URL` → Supabase **Session pooler** URI (`*.pooler.supabase.com:6543`, not `db.*:5432`)
    - `APP_BASE_URL` → `https://YOUR-SERVICE.onrender.com` (no trailing slash)
    - `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (optional)
 5. Wait for the first deploy. Open the service URL and register with email.
@@ -123,7 +126,7 @@ Set `DATABASE_URL` to your Supabase connection string (pooler recommended). No p
 
 | Key | Value |
 |---|---|
-| `DATABASE_URL` | Supabase Postgres URI with `sslmode=require` |
+| `DATABASE_URL` | Supabase **Session pooler** URI (`*.pooler.supabase.com:6543`) |
 | `APP_BASE_URL` | `https://YOUR-SERVICE.onrender.com` |
 | `DSA_SESSION_SECRET` | long random string |
 | `SMTP_HOST` | `smtp.gmail.com` |
