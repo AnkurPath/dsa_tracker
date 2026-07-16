@@ -2,7 +2,7 @@
 
 Spaced-repetition practice helper for LeetCode problems.
 
-**Stack:** FastAPI · Jinja2 · HTMX · Alpine.js · TailwindCSS · SQLite
+**Stack:** FastAPI · Jinja2 · HTMX · Alpine.js · TailwindCSS · Supabase Postgres
 
 ## Auth
 
@@ -24,9 +24,19 @@ Create an account at `/register` with **email + password**, then log in. Each us
 - **Weakness radar** — own-solve rate, frequent-review load, and coach-style headlines
 - **Topic tags** — pulled from LeetCode; filter the dashboard and spot gaps by topic
 
-## Email (optional)
+## Database (required)
 
-Set these in `.env` (see `.env.example`):
+Use a Supabase Postgres database. In the Supabase dashboard: **Project Settings → Database → Connection string (URI)**.
+
+Put it in `.env` (see `.env.example`):
+
+```bash
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres?sslmode=require
+```
+
+On Render, prefer the **pooler** URI (port `6543`) to avoid hitting connection limits. Tables are created automatically on first startup.
+
+## Email (optional)
 
 ```bash
 SMTP_HOST=smtp.gmail.com
@@ -45,6 +55,7 @@ On the dashboard, choose a **send time in IST** (mail goes to your account email
 ## Run
 
 ```bash
+cp .env.example .env   # set DATABASE_URL (+ optional SMTP)
 uv sync
 uv run main.py
 ```
@@ -58,7 +69,7 @@ Optional: set `DSA_SESSION_SECRET` for signed session cookies in production.
 ### Local build
 
 ```bash
-cp .env.example .env   # fill SMTP + APP_BASE_URL
+cp .env.example .env   # fill DATABASE_URL + APP_BASE_URL
 docker compose up --build -d
 ```
 
@@ -70,7 +81,7 @@ Images are published to [`ghcr.io/ankurpath/dsa_tracker`](https://github.com/Ank
 # If the package is private, log in first:
 # echo $GITHUB_TOKEN | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
 
-cp .env.example .env   # fill SMTP + APP_BASE_URL (+ DSA_SESSION_SECRET)
+cp .env.example .env   # fill DATABASE_URL + APP_BASE_URL (+ DSA_SESSION_SECRET)
 docker compose -f docker-compose.ghcr.yml pull
 docker compose -f docker-compose.ghcr.yml up -d
 ```
@@ -82,18 +93,16 @@ docker pull ghcr.io/ankurpath/dsa_tracker:latest
 docker run -d --name dsa-tracker \
   -p 8000:8000 \
   --env-file .env \
-  -e DSA_DB_PATH=/data/dsa_tracker.db \
-  -v dsa_data:/data \
   ghcr.io/ankurpath/dsa_tracker:latest
 ```
 
-App: [http://localhost:8000](http://localhost:8000). SQLite persists in the `dsa_data` volume.
+App: [http://localhost:8000](http://localhost:8000). Data lives in Supabase Postgres (no local DB volume).
 
 To make the image public: GitHub → Packages → `dsa_tracker` → Package settings → Change visibility.
 
 ## Deploy on Render
 
-Your app needs a **persistent disk** for SQLite, so use at least the **Starter** plan (free web services wipe the filesystem on restart).
+Set `DATABASE_URL` to your Supabase connection string (pooler recommended). No persistent disk required for the database.
 
 ### Option A — Blueprint (easiest)
 
@@ -101,21 +110,20 @@ Your app needs a **persistent disk** for SQLite, so use at least the **Starter**
 2. Go to [https://dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**.
 3. Connect the `dsa_tracker` repo and apply the blueprint.
 4. Fill in env vars when prompted:
+   - `DATABASE_URL` → Supabase Postgres URI (`?sslmode=require`)
    - `APP_BASE_URL` → `https://YOUR-SERVICE.onrender.com` (no trailing slash)
-   - `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (Gmail app password)
+   - `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (optional)
 5. Wait for the first deploy. Open the service URL and register with email.
 
 ### Option B — Manual Web Service
 
 1. **New** → **Web Service** → connect this GitHub repo.
 2. Runtime: **Docker** (Render builds from `Dockerfile`).
-3. Instance: **Starter** (required for disk).
-4. **Disk**: add a disk, mount path `/data`, size 1 GB.
-5. **Environment**:
+3. **Environment**:
 
 | Key | Value |
 |---|---|
-| `DSA_DB_PATH` | `/data/dsa_tracker.db` |
+| `DATABASE_URL` | Supabase Postgres URI with `sslmode=require` |
 | `APP_BASE_URL` | `https://YOUR-SERVICE.onrender.com` |
 | `DSA_SESSION_SECRET` | long random string |
 | `SMTP_HOST` | `smtp.gmail.com` |
@@ -125,10 +133,10 @@ Your app needs a **persistent disk** for SQLite, so use at least the **Starter**
 | `SMTP_FROM` | `DSA Revision Helper <you@gmail.com>` |
 | `SMTP_TLS` | `1` |
 
-6. Deploy → open the URL → `/register`.
+4. Deploy → open the URL → `/register`.
 
 ### After deploy
 
 - Email links use `APP_BASE_URL` — set it to your real `https://….onrender.com`.
 - Redeploy happens automatically on push to `main`.
-- Check **Logs** if the service won’t start (SMTP/env mistakes show up there).
+- Check **Logs** if the service won’t start (DB/SMTP/env mistakes show up there).

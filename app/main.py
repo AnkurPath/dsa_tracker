@@ -6,6 +6,10 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -27,9 +31,6 @@ from app.auth import (
 from app.database import get_db, init_db
 from app.emailer import smtp_configured
 from app.models import SOLVE_METHOD_LABELS, SolveMethod, User
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 APP_BASE_URL = os.getenv("APP_BASE_URL", "http://127.0.0.1:8000")

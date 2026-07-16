@@ -11,8 +11,8 @@ services:
     dockerContext: .
     healthCheckPath: /login
     envVars:
-      - key: DSA_DB_PATH
-        value: /data/dsa_tracker.db
+      - key: DATABASE_URL
+        sync: false
       - key: APP_BASE_URL
         sync: false
       - key: DSA_SESSION_SECRET
@@ -29,7 +29,3 @@ services:
         sync: false
       - key: SMTP_TLS
         value: "1"
-    disk:
-      name: dsa-data
-      mountPath: /data
-      sizeGB: 1
