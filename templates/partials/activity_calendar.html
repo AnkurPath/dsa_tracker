@@ -15,15 +15,15 @@
     {% for item in activity.last_30_days %}
       <div
         title="{{ item.day.strftime('%b %d') }} · {{ item.count }} attempt{{ 's' if item.count != 1 else '' }}"
-        class="h-3.5 rounded
+        class="h-3.5 rounded transition
           {% if item.intensity == 0 %}
             bg-paper-wash
           {% elif item.intensity == 1 %}
-            bg-wait-soft
+            bg-wait/45 ring-1 ring-inset ring-wait/40
           {% elif item.intensity == 2 %}
-            bg-wait
+            bg-wait ring-1 ring-inset ring-wait/60
           {% else %}
-            bg-ink
+            bg-ink ring-1 ring-inset ring-ink/60
           {% endif %}"
       ></div>
     {% endfor %}

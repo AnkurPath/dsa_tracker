@@ -399,6 +399,16 @@ def ist_now() -> datetime:
     return datetime.now(ZoneInfo("Asia/Kolkata"))
 
 
+def attempt_day_ist(created_at: datetime) -> date:
+    """Map attempt timestamps to IST calendar day for streak metrics."""
+    from zoneinfo import ZoneInfo
+
+    instant = created_at
+    if instant.tzinfo is None:
+        instant = instant.replace(tzinfo=timezone.utc)
+    return instant.astimezone(ZoneInfo("Asia/Kolkata")).date()
+
+
 def user_ready_for_scheduled_email(user: User, *, now_ist: datetime | None = None) -> bool:
     """True when IST clock has reached the user's daily send time and not sent today."""
     now = now_ist or ist_now()
@@ -697,7 +707,7 @@ def activity_summary(db: Session, user_id: int) -> ActivitySummary:
 
     counts_by_day: dict[date, int] = {}
     for attempt in attempts:
-        attempt_day = attempt.created_at.date()
+        attempt_day = attempt_day_ist(attempt.created_at)
         counts_by_day[attempt_day] = counts_by_day.get(attempt_day, 0) + 1
 
     days = sorted(counts_by_day.keys())
@@ -712,7 +722,7 @@ def activity_summary(db: Session, user_id: int) -> ActivitySummary:
         best_streak = max(best_streak, running)
         prev = day
 
-    today = date.today()
+    today = ist_now().date()
     current_streak = 0
     cursor = today
     while counts_by_day.get(cursor, 0) > 0:
